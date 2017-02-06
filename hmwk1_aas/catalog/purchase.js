@@ -16,24 +16,44 @@ function initCars() {
     }
 }
 
-function rmCart(id, keyWord) {
+function CalcTotal (amount) {
+    var total = 0;
+    for (var i = 0; i < listCart.length; i++) {
+        if (listCart[i] == 0) {
+            continue;
+        }
+        total += parseFloat(JSON.parse(listCars[i]).price) * listCart[i];
+    }
+    total_str = total.toString();
+    amount.value = total_str;
+
+    console.log("Total amount: "+total);
+}
+function rmCart(id, keyWord, amount) {
+
     listCart[id.replace(keyWord, '')]--;
 
     /* re-style button */
     var btn = document.getElementById(id);
     btn.className = "btn btn-primary";
     btn.value = "Add to Cart";
-    btn.onclick = function() {addCart(this.id, "add");};
+    btn.onclick = function() {
+        addCart(this.id, "add", amount); 
+        CalcTotal(amount); 
+    };
 }
 
-function addCart(id, keyWord) {
+function addCart(id, keyWord, amount) {
     listCart[id.replace(keyWord, '')]++;
 
     /* re-style button */
     var btn = document.getElementById(id);
     btn.className = "btn btn-danger";
     btn.value = "Remove";
-    btn.onclick = function() {rmCart(this.id, "add");};
+    btn.onclick = function() {
+        rmCart(this.id, "add", amount);
+        CalcTotal(amount); 
+    };
 }
 
 function formatPrice(str) {
@@ -58,42 +78,63 @@ function formatPrice(str) {
 
 function drawTable() {    
     initCars();
-
     var tbl = document.getElementById('carTbl');
-    for (var i = 0; i < listCars.length; i++) {
-        var obj = JSON.parse(listCars[i]);
-        var row = tbl.insertRow(-1);
+    var amount = document.createElement("input");
+    amount.type="text";
+    amount.value = "0.00";
 
-        //image
-        var cell0 = row.insertCell(0);
-        cell0.style.width = "30%";
-        var t0 = document.createElement("img");
-        t0.src = obj.pic;
-        cell0.appendChild(t0);
+    for (var i = 0; i < listCars.length+1; i++) {
+        if(i!=listCars.length){
+            var obj = JSON.parse(listCars[i]);
+            var row = tbl.insertRow(-1);
 
-        //description
-        var cell1 = row.insertCell(1);
-        cell1.style.width = "60%";
-        var t1 = document.createElement("span");
-        var price = formatPrice(obj.price);
-        t1.innerHTML = "<h4>"+obj.name+"</br>" +
-            "<small>by "+obj.manu+"</small></h4>" +
-            "<h3>$ "+price[0]+"<small>"+price[1]+"</small></h3>";
-        cell1.appendChild(t1);
+            //image
+            var cell0 = row.insertCell(0);
+            cell0.style.width = "30%";
+            var t0 = document.createElement("img");
+            t0.src = obj.pic;
+            cell0.appendChild(t0);
 
-        //action
-        var cell2 = row.insertCell(2);
-        cell2.style.width = "10%";
-        var t2 = document.createElement("input");
-        t2.id = "add" + i;
-        t2.type = "button";
-        t2.className = "btn btn-primary";
-        t2.value = "Add to Cart";
-        t2.style.width = "110px";
-        t2.onclick = function() {addCart(this.id, "add");};
-        cell2.appendChild(t2);
+            //description
+            var cell1 = row.insertCell(1);
+            cell1.style.width = "60%";
+            var t1 = document.createElement("span");
+            var price = formatPrice(obj.price);
+            t1.innerHTML = "<h4>"+obj.name+"</br>" +
+                "<small>by "+obj.manu+"</small></h4>" +
+                "<h3>$ "+price[0]+"<small>"+price[1]+"</small></h3>";
+            cell1.appendChild(t1);
+
+            //action
+            var cell2 = row.insertCell(2);
+            cell2.style.width = "10%";
+            var t2 = document.createElement("input");
+            t2.id = "add" + i;
+            t2.type = "button";
+            t2.className = "btn btn-primary";
+            t2.value = "Add to Cart";
+            t2.style.width = "110px";
+
+            
+            t2.onclick = function() {
+                addCart(this.id, "add", amount); 
+                CalcTotal(amount);
+            }; 
+            cell2.appendChild(t2);
+        }
+        else{
+            var row = tbl.insertRow(-1)
+            var cell0 = row.insertCell(0);
+            var total=document.createElement("span");
+            total.innerHTML = "<h3> "+"Total: "+"<small></h3>"
+            cell0.appendChild(total)
+            var cell1 = row.insertCell(1);
+            var tmp = document.createElement("span");
+            cell1.appendChild(tmp);
+            cell2=row.insertCell(2);
+            cell2.append(amount);
+        }
     }
-
 }
 
 function commitPurchase() {
@@ -106,7 +147,15 @@ function commitPurchase() {
     }
 
     console.log("Total amount: "+total);
-
+    /* 
+    // Immediate-Invoke function expression
+    t2.onclick = (function(p){
+        // console.log(p);
+        return function() {
+        CalcTotal(p, amount);
+        addCart(this.id, "add", p, amount);
+    };
+    })(obj.price);*/
     /*
      * Now need to save the chart data properly and redirect to payment service.
      * (Calculating the amount in the .js might not be a good idea)
