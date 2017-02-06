@@ -1,5 +1,5 @@
 listCars = [];
-listChart = [];
+listCart = [];
 
 function initCars() {
     listCars.push('{ "id":"01", "manu":"Lamborghini", "pic":"images/lambo-aventador.png", "name":"Aventador LP700-4", "price":"419000.00" }');
@@ -12,28 +12,28 @@ function initCars() {
 
     /* initialize chart */
     for (var i = 0; i < listCars.length; i++) {
-        listChart.push(0);
+        listCart.push(0);
     }
 }
 
-function rmChart(id, keyWord) {
-    listChart[id.replace(keyWord, '')]--;
+function rmCart(id, keyWord) {
+    listCart[id.replace(keyWord, '')]--;
 
     /* re-style button */
     var btn = document.getElementById(id);
     btn.className = "btn btn-primary";
-    btn.value = "Add to Chart";
-    btn.onclick = function() {addChart(this.id, "add");};
+    btn.value = "Add to Cart";
+    btn.onclick = function() {addCart(this.id, "add");};
 }
 
-function addChart(id, keyWord) {
-    listChart[id.replace(keyWord, '')]++;
+function addCart(id, keyWord) {
+    listCart[id.replace(keyWord, '')]++;
 
     /* re-style button */
     var btn = document.getElementById(id);
     btn.className = "btn btn-danger";
     btn.value = "Remove";
-    btn.onclick = function() {rmChart(this.id, "add");};
+    btn.onclick = function() {rmCart(this.id, "add");};
 }
 
 function formatPrice(str) {
@@ -88,9 +88,9 @@ function drawTable() {
         t2.id = "add" + i;
         t2.type = "button";
         t2.className = "btn btn-primary";
-        t2.value = "Add to Chart";
+        t2.value = "Add to Cart";
         t2.style.width = "110px";
-        t2.onclick = function() {addChart(this.id, "add");};
+        t2.onclick = function() {addCart(this.id, "add");};
         cell2.appendChild(t2);
     }
 
@@ -98,11 +98,11 @@ function drawTable() {
 
 function commitPurchase() {
     var total = 0;
-    for (var i = 0; i < listChart.length; i++) {
-        if (listChart[i] == 0) {
+    for (var i = 0; i < listCart.length; i++) {
+        if (listCart[i] == 0) {
             continue;
         }
-        total += parseFloat(JSON.parse(listCars[i]).price) * listChart[i];
+        total += parseFloat(JSON.parse(listCars[i]).price) * listCart[i];
     }
 
     console.log("Total amount: "+total);
